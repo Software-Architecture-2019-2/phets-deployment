@@ -1,0 +1,183 @@
+version: "2.1"
+services:
+  phets-api:
+    container_name: phets-api
+    image: phetsunal/phets-api
+    environment:
+      PORT: "4000"
+      SHOW_URLS: "true"
+      EVENT_URL: "172.17.0.1" # for mac or windows use host.docker.internal instead
+      EVENT_PORT: "4001"
+      EVENT_ENTRY: "event"
+      CHAT_URL: "172.17.0.1" # for mac or windows use host.docker.internal instead
+      CHAT_PORT: "4002"
+      ANIMAL_URL: "172.17.0.1" # for mac or windows use host.docker.internal instead
+      ANIMAL_PORT: "4003"
+      INTERACTION_URL: "172.17.0.1" # for mac or windows use host.docker.internal instead
+      INTERACTION_PORT: "4005"
+      INTERACTION_ENTRY: "api/interaction"
+      NOTIFICATION_URL: "172.17.0.1"
+      NOTIFICATION_PORT: "4004"
+      NOTIFICATION_ENTRY: "notifications"
+    ports:
+      - "4000:4000"
+  phets-users-ms:
+    container_name: phets-users-ms
+    image: phetsunal/phets-users-ms
+    ports:
+      - "4006:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://172.17.0.1:3006/user?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: phets-user
+      SPRING_DATASOURCE_PASSWORD: phets-password
+    depends_on:
+      phets-users-db:
+        condition: service_healthy
+    healthcheck:
+      test: "curl -I phets-users-ms:4006/user --fail"
+      interval: 20s
+      retries: 10
+  phets-users-db:
+    image: mariadb:latest
+    container_name: phets-users-db
+    environment:
+      MYSQL_ROOT_PASSWORD: ph375-u53r5
+      MYSQL_DATABASE: user
+      MYSQL_USER: phets-user
+      MYSQL_PASSWORD: phets-password
+    ports:
+      - "3006:3306"
+    volumes:
+     - /tmp/phets-users-db:/var/lib/mysql
+    healthcheck:
+      test: mysqladmin ping -h 127.0.0.1 -u $$MYSQL_USER
+      interval: 20s
+      timeout: 5s
+      retries: 15
+  phets-animal-ms:
+    container_name: phets-animal-ms
+    build: phetsunal/phets-animal-ms
+    ports:
+      - "4003:5000"
+    depends_on:
+      phets-animal-db:
+        condition: service_healthy
+    environment:
+      DATABASE_USER: animalUser
+      DATABASE_PASS: password
+      DATABASE_URI: 172.17.0.1:3003
+      DATABASE_NAME: animals
+  phets-animal-db:
+    image: mariadb:latest
+    container_name: phets-animal-db
+    environment:
+      MYSQL_ROOT_PASSWORD: animals123
+      MYSQL_DATABASE: animals
+      MYSQL_USER: animalUser
+      MYSQL_PASSWORD: password
+    ports:
+      - "3003:3306"
+    volumes:
+     - ./tmp/phets-animal-db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "--silent"]
+      interval: 20s
+      timeout: 5s
+      retries: 15
+  phets-chat-ms:
+    container_name: phets-chat-ms
+    image: phetsunal/phets-chat-ms
+    ports:
+      - "4002:4002"
+    image: nodejs
+    container_name: nodejs
+    restart: unless-stopped
+  phets-event-ms:
+    container_name: phets-event-ms
+    image: phetsunal/phets-event-ms
+    ports:
+      - "4001:8000"
+    depends_on:
+      phets-event-db:
+        condition: service_healthy
+    environment:
+      MONGO_HOST: 172.17.0.1
+      MONGO_PORT: 3001
+    healthcheck:
+      test: "curl -G localhost:8000/event --fail"
+      interval: 20s
+      retries: 10
+  phets-event-db:
+    container_name: phets-event-db
+    image: mongo
+    healthcheck:
+      test: echo 'db.stats().ok' | mongo localhost:27017/test --quiet
+      interval: 20s
+      timeout: 5s
+      retries: 3
+    ports:
+      - "3001:27017"
+  phets-file-ms:
+    container_name: phets-file-ms
+    build:
+      context: phetsunal/phets-file-ms
+      args:
+        UPLOADS_DIR: /var/local/uploads
+    volumes:
+      - phets-files-volume:/var/local/uploads
+    environment:
+      PORT: '4007'
+      UPLOADS_PATH: '/var/local/uploads'
+    ports:
+      - '4007:4007'
+  phets-interaction-db:
+    container_name: phets-interaction-db
+    image: postgres:latest
+    ports:
+      - "3005:5432"
+    restart: always
+    volumes:
+      - ./phets-interaction-ms/interaction_ms/dbscripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      POSTGRES_USER: "phets_interaction"
+      POSTGRES_PASSWORD: "phets_interaction"
+      POSTGRES_DB: "interaction_db"
+    networks:
+      - interaction_ms-dev
+  phets-interaction-ms:
+    container_name: phets-interaction-ms
+    image: phetsunal/phets-interaction-ms
+    depends_on:
+      - "phets-interaction-db"
+    build: phets-interaction-ms/interaction_ms
+    ports:
+      - "4005:80"
+    environment:
+      DB_CONNECTION_STRING: "host=172.17.0.1;port=3005;database=interaction_db;username=phets_interaction;password=phets_interaction"
+    networks:
+      - interaction_ms-dev
+  phets-notification-db:
+    container_name: phets-notification-db
+    image: postgres
+    volumes:
+      - ./tmp/sa_notification_db:/var/lib/postgresql/data
+    ports:
+      - "3004:3004"
+  phets-notification-ms:
+    container_name: phets-notification-ms
+    build: phetsunal/phets-notification-ms
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 4004 -b '0.0.0.0'"
+    volumes:
+      - ./phets-notification-ms:/sa_notification_ms
+    ports:
+      - "4004:4004"
+    depends_on:
+      - phets-notification-db
+
+volumes:
+  phets-files-volume:
+
+networks:
+  interaction_ms-dev:
+    driver: bridge
+
