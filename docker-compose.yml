@@ -134,7 +134,7 @@ services:
       - "3005:5432"
     restart: always
     volumes:
-      - ./phets-interaction-ms/interaction_ms/dbscripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - phets-interaction-volume:/docker-entrypoint-initdb.d/init.sql
     environment:
       POSTGRES_USER: "phets_interaction"
       POSTGRES_PASSWORD: "phets_interaction"
@@ -154,9 +154,9 @@ services:
       - interaction_ms-dev
   phets-notification-db:
     container_name: phets-notification-db
-    image: postgres
+    image: postgres:latest
     volumes:
-      - ./tmp/sa_notification_db:/var/lib/postgresql/data
+      - phets-notification-volume:/var/lib/postgresql/data
     ports:
       - "3004:3004"
   phets-notification-ms:
@@ -182,6 +182,8 @@ volumes:
   phets-animal-volume:
   phets-files-volume:
   phets-users-db:
+  phets-interaction-volume:
+  phets-notification-volume:
 
 networks:
   interaction_ms-dev:
