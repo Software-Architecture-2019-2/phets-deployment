@@ -1,8 +1,4 @@
 version: "3.4"
-
-networks:
-interaction_ms-dev:
-  driver: bridge
 services:
   phets-interaction-db:
     container_name: phets-interaction-db
@@ -26,9 +22,13 @@ services:
     ports:
       - "4005:80"
     environment:
-      DB_CONNECTION_STRING: "host=172.17.0.1;port=3005;database=interaction_db;username=phets_interaction;password=phets_interaction"
+      DB_CONNECTION_STRING: "host=phets-interaction-db;port=3005;database=interaction_db;username=phets_interaction;password=phets_interaction"
     networks:
       - interaction_ms-dev
 
 volumes:
   phets-interaction-volume:
+
+networks:
+  interaction_ms-dev:
+    driver: bridge
