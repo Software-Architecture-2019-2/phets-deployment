@@ -1,7 +1,7 @@
 version: "3.4"
 
 networks:
-  interaction_ms-dev:
+  phets-interaction-ms-dev:
     driver: bridge
 
 services:
@@ -28,4 +28,4 @@ services:
     environment:
       DB_CONNECTION_STRING: "host=postgres_image;port=5432;database=interaction_db;username=phets_interaction;password=phets_interaction"
     networks:
-      - interaction_ms-dev
+      - phets-interaction-ms-dev:
