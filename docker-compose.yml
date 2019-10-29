@@ -59,7 +59,6 @@ services:
   phets-animal-ms:
     container_name: phets-animal-ms
     image: phetsunal/phets-animal-ms:latest
-    build: .
     ports:
       - "4003:5000"
     depends_on:
@@ -99,11 +98,9 @@ services:
       - "4007:4007"
   phets-chat-ms:
     container_name: phets-chat-ms
-    image: phetsunal/phets-chat-ms
+    image: phetsunal/phets-chat
     ports:
       - "4002:4002"
-    image: nodejs
-    container_name: nodejs
     restart: unless-stopped
   phets-event-ms:
     container_name: phets-event-ms
@@ -149,7 +146,6 @@ services:
     image: phetsunal/phets-interaction-ms
     depends_on:
       - "phets-interaction-db"
-    build: phets-interaction-ms/interaction_ms
     ports:
       - "4005:80"
     environment:
@@ -165,7 +161,7 @@ services:
       - "3004:3004"
   phets-notification-ms:
     container_name: phets-notification-ms
-    build: phetsunal/phets-notification-ms
+    image: phetsunal/phets-notification-ms
     command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 4004 -b '0.0.0.0'"
     volumes:
       - ./phets-notification-ms:/sa_notification_ms
