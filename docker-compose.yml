@@ -101,7 +101,6 @@ services:
     image: phetsunal/phets-chat
     ports:
       - "4002:4002"
-    container_name: nodejs
     restart: unless-stopped
   phets-event-ms:
     container_name: phets-event-ms
