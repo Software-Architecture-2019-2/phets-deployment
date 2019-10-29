@@ -98,7 +98,7 @@ services:
       - "4007:4007"
   phets-chat-ms:
     container_name: phets-chat-ms
-    image: phetsunal/phets-chat-ms
+    image: phetsunal/phets-chat
     ports:
       - "4002:4002"
     restart: unless-stopped
