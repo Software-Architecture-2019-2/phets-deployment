@@ -169,6 +169,14 @@ services:
       - "4004:4004"
     depends_on:
       - phets-notification-db
+  phets-web:
+    container_name: phets-web
+    image: phetsunal/phets-web
+    ports:
+      - "5000:3000"
+    environment:
+      NUXT_HOST: 0.0.0.0
+      NUXT_PORT: 3000
 
 volumes:
   phets-animal-volume:
