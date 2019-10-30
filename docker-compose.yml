@@ -128,6 +128,7 @@ services:
     ports:
       - "3001:27017"
   phets-interaction-db:
+    container_name: phets-interaction-db
     image: postgres:11
     ports:
       - "3005:5432"
@@ -141,6 +142,7 @@ services:
     networks:
       - phets-interaction-ms-dev
   phets-interaction-ms:
+    container_name: phets-interaction-ms
     image: phetsunal/phets-interaction-ms
     depends_on:
       - "phets-interaction-db"
