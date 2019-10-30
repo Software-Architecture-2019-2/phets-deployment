@@ -17,7 +17,7 @@ services:
       POSTGRES_PASSWORD: "phets_interaction"
       POSTGRES_DB: "interaction_db"
     networks:
-      - interaction_ms-dev
+      - phets-interaction-ms-dev
 
   phets-interaction-ms:
     image: phetsunal/phets-interaction-ms
@@ -28,4 +28,4 @@ services:
     environment:
       DB_CONNECTION_STRING: "host=postgres_image;port=5432;database=interaction_db;username=phets_interaction;password=phets_interaction"
     networks:
-      - phets-interaction-ms-dev:
+      - phets-interaction-ms-dev
