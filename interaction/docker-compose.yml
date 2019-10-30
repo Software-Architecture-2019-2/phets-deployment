@@ -6,7 +6,7 @@ networks:
 
 services:
   postgres_image:
-    image: postgres:latest
+    image: postgres:11
     ports:
       - "3005:5432"
     restart: always
