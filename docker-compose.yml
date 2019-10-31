@@ -152,23 +152,6 @@ services:
       DB_CONNECTION_STRING: "host=phets-interaction-db;port=5432;database=interaction_db;username=phets_interaction;password=phets_interaction"
     networks:
       - phets-interaction-ms-dev
-  phets-notification-db:
-    container_name: phets-notification-db
-    image: postgres:latest
-    volumes:
-      - phets-notification-volume:/var/lib/postgresql/data
-    ports:
-      - "3004:3004"
-  phets-notification-ms:
-    container_name: phets-notification-ms
-    image: phetsunal/phets-notification-ms
-    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 4004 -b '0.0.0.0'"
-    volumes:
-      - ./phets-notification-ms:/sa_notification_ms
-    ports:
-      - "4004:4004"
-    depends_on:
-      - phets-notification-db
   phets-web:
     container_name: phets-web
     image: phetsunal/phets-web
