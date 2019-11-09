@@ -96,21 +96,16 @@ services:
       UPLOADS_PATH: "/var/local/uploads"
     ports:
       - "4007:4007"
-  # phets-chat-ms:
-  #   container_name: phets-chat-ms
-  #   image: phetsunal/phets-chat-ms
-  #   ports:
-  #     - "4002:4002"
-  #   restart: unless-stopped
   phets-event-ms:
     container_name: phets-event-ms
     image: phetsunal/phets-event-ms
     ports:
-      - "4001:8000"
+      - "4001:4001"
     depends_on:
       phets-event-db:
         condition: service_healthy
     environment:
+      PORT: 4001
       MONGO_HOST: 172.17.0.1
       MONGO_PORT: 3001
     healthcheck:
@@ -120,6 +115,8 @@ services:
   phets-event-db:
     container_name: phets-event-db
     image: mongo
+    volumes:
+      - phets-event-db-volume:/data/db
     healthcheck:
       test: echo 'db.stats().ok' | mongo localhost:27017/test --quiet
       interval: 20s
@@ -167,6 +164,7 @@ volumes:
   phets-users-db:
   phets-interaction-volume:
   phets-notification-volume:
+  phets-event-db-volume:
 
 networks:
   phets-interaction-ms-dev:
