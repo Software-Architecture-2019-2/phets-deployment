@@ -139,12 +139,14 @@ services:
     networks:
       - phets-interaction-ms-dev
   phets-notification-db:
+    container_name: phets-notification-db
     image: postgres
     volumes:
       - phets-notification-db-volume:/var/lib/postgresql/data
     ports:
       - "3004:5432"
   phets-notification-ms:
+    container_name: phets-notification-ms
     image: phetsunal/phets-notification-ms
     command: bash -c "rm -f tmp/pids/server.pid && bundle exec rake db:create db:migrate && bundle exec rails s -p 4004 -b '0.0.0.0'"
     ports:
@@ -171,6 +173,7 @@ services:
       NUXT_HOST: 0.0.0.0
       NUXT_PORT: 3000
   phets-soa-interface:
+    container_name: phets-soa-interface
     image: phetsunal/phets-soa-interface
     command: bash -c "sleep 40 && rm -f tmp/pids/server.pid && bundle exec rails s -p 4008 -b '0.0.0.0'"
     environment:
