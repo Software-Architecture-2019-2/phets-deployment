@@ -138,6 +138,19 @@ services:
       POSTGRES_DB: "interaction_db"
     networks:
       - phets-interaction-ms-dev
+  phets-notification-db:
+    image: postgres
+    volumes:
+      - phets-notification-db-volume:/var/lib/postgresql/data
+    ports:
+      - "3004:5432"
+  phets-notification-ms:
+    image: phets/phets-notification-ms
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rake db:create db:migrate && bundle exec rails s -p 4004 -b '0.0.0.0'"
+    ports:
+      - "4004:4004"
+    depends_on:
+      - phets-notification-db
   phets-interaction-ms:
     container_name: phets-interaction-ms
     image: phetsunal/phets-interaction-ms
@@ -163,7 +176,7 @@ volumes:
   phets-files-volume:
   phets-users-db:
   phets-interaction-volume:
-  phets-notification-volume:
+  phets-notification-db-volume:
   phets-event-db-volume:
 
 networks:
