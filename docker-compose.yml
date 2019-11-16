@@ -138,6 +138,17 @@ services:
       POSTGRES_DB: "interaction_db"
     networks:
       - phets-interaction-ms-dev
+  phets-interaction-ms:
+    container_name: phets-interaction-ms
+    image: phetsunal/phets-interaction-ms
+    depends_on:
+      - "phets-interaction-db"
+    ports:
+      - "4005:80"
+    environment:
+      DB_CONNECTION_STRING: "host=phets-interaction-db;port=5432;database=interaction_db;username=phets_interaction;password=phets_interaction"
+    networks:
+      - phets-interaction-ms-dev
   phets-notification-db:
     container_name: phets-notification-db
     image: postgres
@@ -153,17 +164,6 @@ services:
       - "4004:4004"
     depends_on:
       - phets-notification-db
-  phets-interaction-ms:
-    container_name: phets-interaction-ms
-    image: phetsunal/phets-interaction-ms
-    depends_on:
-      - "phets-interaction-db"
-    ports:
-      - "4005:80"
-    environment:
-      DB_CONNECTION_STRING: "host=phets-interaction-db;port=5432;database=interaction_db;username=phets_interaction;password=phets_interaction"
-    networks:
-      - phets-interaction-ms-dev
   phets-web:
     container_name: phets-web
     image: phetsunal/phets-web
