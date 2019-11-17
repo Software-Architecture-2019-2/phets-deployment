@@ -132,6 +132,7 @@ services:
     restart: always
     volumes:
       - ./dbscripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - phets-interaction-volume:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: "phets_interaction"
       POSTGRES_PASSWORD: "phets_interaction"
