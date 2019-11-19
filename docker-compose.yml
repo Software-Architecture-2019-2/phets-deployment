@@ -199,9 +199,8 @@ services:
     tty: true
     stdin_open: true
     volumes:
-      - phets-ldap-volume:/var/lib/ldap
-      - phets-ldap-volume:/etc/ldap/slapd.d
-      - phets-ldap-volume:/container/service/slapd/assets/certs/
+      - phets-ldap-db:/var/lib/ldap
+      - phets-ldap-config:/etc/ldap/slapd.d
     hostname: "phets.com"
   phpldapadmin:
     container_name: phpldapadmin
@@ -221,4 +220,5 @@ volumes:
   phets-interaction-volume:
   phets-notification-db-volume:
   phets-event-db-volume:
-  phets-ldap-volume:
+  phets-ldap-db:
+  phets-ldap-config:
