@@ -164,6 +164,7 @@ services:
     ports:
       - "4008:4008"
   phets-proxy:
+    container_name: phets-proxy
     image: phetsunal/phets-proxy
     depends_on:
       - phets-api
