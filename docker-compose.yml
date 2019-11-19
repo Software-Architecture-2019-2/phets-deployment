@@ -168,7 +168,7 @@ services:
     image: phetsunal/phets-proxy
     depends_on:
       - phets-api
-      - phets-files-ms
+      - phets-file-ms
       - phets-web
     ports:
       - "80:80"
