@@ -169,7 +169,8 @@ services:
       - phets-api
     ports:
       - "80:80"
-  sa-ldap:
+  phets-ldap:
+    container_name: phets-ldap
     image: osixia/openldap:1.1.9
     environment:
       COMPOSE_HTTP_TIMEOUT: 200
@@ -180,8 +181,6 @@ services:
       LDAP_ADMIN_PASSWORD: 'admin'
       LDAP_CONFIG_PASSWORD: 'config'
       LDAP_READONLY_USER: 'false'
-      #LDAP_READONLY_USER_USERNAME: "readonly"
-      #LDAP_READONLY_USER_PASSWORD: "readonly"
       LDAP_BACKEND: 'hdb'
       LDAP_TLS: 'true'
       LDAP_TLS_CRT_FILENAME: 'ldap.crt'
@@ -192,9 +191,6 @@ services:
       LDAP_TLS_PROTOCOL_MIN: '3.1'
       LDAP_TLS_VERIFY_CLIENT: 'demand'
       LDAP_REPLICATION: 'false'
-      #LDAP_REPLICATION_CONFIG_SYNCPROV: "binddn="cn=admin,cn=config" bindmethod=simple credentials=$LDAP_CONFIG_PASSWORD searchbase="cn=config" type=refreshAndPersist retry="60 +" timeout=1 starttls=critical"
-      #LDAP_REPLICATION_DB_SYNCPROV: "binddn="cn=admin,$LDAP_BASE_DN" bindmethod=simple credentials=$LDAP_ADMIN_PASSWORD searchbase="$LDAP_BASE_DN" type=refreshAndPersist interval=00:00:00:10 retry="60 +" timeout=1 starttls=critical"
-      #LDAP_REPLICATION_HOSTS: "#PYTHON2BASH:['ldap://ldap.example.org','ldap://ldap2.example.org']"
       LDAP_REMOVE_CONFIG_AFTER_SETUP: 'true'
       LDAP_SSL_HELPER_PREFIX: 'ldap'
     tty: true
@@ -203,20 +199,17 @@ services:
       - /var/lib/ldap
       - /etc/ldap/slapd.d
       - /container/service/slapd/assets/certs/
-    ports:
-      - '389:389'
-      - '636:636'
     hostname: 'phets.com'
   phpldapadmin:
-    image: osixia/phpldapadmin:latest
     container_name: phpldapadmin
+    image: osixia/phpldapadmin:latest
     environment:
-      PHPLDAPADMIN_LDAP_HOSTS: 'sa-ldap'
+      PHPLDAPADMIN_LDAP_HOSTS: 'phets-ldap'
       PHPLDAPADMIN_HTTPS: 'false'
     ports:
       - '8085:80'
     links:
-      - sa-ldap
+      - phets-ldap
 
 volumes:
   phets-animal-volume:
