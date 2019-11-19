@@ -6,28 +6,24 @@ services:
     environment:
       PORT: "4000"
       SHOW_URLS: "true"
-      EVENT_URL: "172.17.0.1"
+      EVENT_URL: "phets-event-ms"
       EVENT_PORT: "4001"
       EVENT_ENTRY: "event"
       CHAT_URL: "172.17.0.1"
       CHAT_PORT: "4002"
-      ANIMAL_URL: "172.17.0.1"
+      ANIMAL_URL: "phets-animal-ms"
       ANIMAL_PORT: "4003"
-      INTERACTION_URL: "172.17.0.1"
+      INTERACTION_URL: "phets-interaction-ms"
       INTERACTION_PORT: "4005"
       INTERACTION_ENTRY: "api/interaction"
-      NOTIFICATION_URL: "172.17.0.1"
+      NOTIFICATION_URL: "phets-notification-ms"
       NOTIFICATION_PORT: "4004"
       NOTIFICATION_ENTRY: "notifications"
-      USER_URL: "172.17.0.1"
+      USER_URL: "phets-users-ms"
       USER_PORT: "4006"
-    ports:
-      - "4000:4000"
   phets-users-ms:
     container_name: phets-users-ms
     image: phetsunal/phets-users-ms:latest
-    ports:
-      - "4006:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://172.17.0.1:3006/user?createDatabaseIfNotExist=true
       SPRING_DATASOURCE_USERNAME: phets-user
@@ -59,8 +55,6 @@ services:
   phets-animal-ms:
     container_name: phets-animal-ms
     image: phetsunal/phets-animal-ms:latest
-    ports:
-      - "4003:5000"
     depends_on:
       phets-animal-db:
         condition: service_healthy
@@ -94,13 +88,9 @@ services:
     environment:
       PORT: "4007"
       UPLOADS_PATH: "/var/local/uploads"
-    ports:
-      - "4007:4007"
   phets-event-ms:
     container_name: phets-event-ms
     image: phetsunal/phets-event-ms
-    ports:
-      - "4001:4001"
     depends_on:
       phets-event-db:
         condition: service_healthy
@@ -124,6 +114,13 @@ services:
       retries: 3
     ports:
       - "3001:27017"
+  phets-interaction-ms:
+    container_name: phets-interaction-ms
+    image: phetsunal/phets-interaction-ms
+    depends_on:
+      - "phets-interaction-db"
+    environment:
+      DB_CONNECTION_STRING: "host=phets-interaction-db;port=5432;database=interaction_db;username=phets_interaction;password=phets_interaction"
   phets-interaction-db:
     container_name: phets-interaction-db
     image: postgres:11
@@ -137,19 +134,12 @@ services:
       POSTGRES_USER: "phets_interaction"
       POSTGRES_PASSWORD: "phets_interaction"
       POSTGRES_DB: "interaction_db"
-    networks:
-      - phets-interaction-ms-dev
-  phets-interaction-ms:
-    container_name: phets-interaction-ms
-    image: phetsunal/phets-interaction-ms
+  phets-notification-ms:
+    container_name: phets-notification-ms
+    image: phetsunal/phets-notification-ms
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rake db:create db:migrate && bundle exec rails s -p 4004 -b '0.0.0.0'"
     depends_on:
-      - "phets-interaction-db"
-    ports:
-      - "4005:80"
-    environment:
-      DB_CONNECTION_STRING: "host=phets-interaction-db;port=5432;database=interaction_db;username=phets_interaction;password=phets_interaction"
-    networks:
-      - phets-interaction-ms-dev
+      - phets-notification-db
   phets-notification-db:
     container_name: phets-notification-db
     image: postgres
@@ -157,22 +147,12 @@ services:
       - phets-notification-db-volume:/var/lib/postgresql/data
     ports:
       - "3004:5432"
-  phets-notification-ms:
-    container_name: phets-notification-ms
-    image: phetsunal/phets-notification-ms
-    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rake db:create db:migrate && bundle exec rails s -p 4004 -b '0.0.0.0'"
-    ports:
-      - "4004:4004"
-    depends_on:
-      - phets-notification-db
   phets-web:
     container_name: phets-web
     image: phetsunal/phets-web
-    ports:
-      - "5000:3000"
     environment:
       NUXT_HOST: 0.0.0.0
-      NUXT_PORT: 3000
+      NUXT_PORT: 5000
   phets-soa-interface:
     container_name: phets-soa-interface
     image: phetsunal/phets-soa-interface
@@ -182,6 +162,12 @@ services:
       EVENT_MS_PORT: 4001
     ports:
       - "4008:4008"
+  phets-proxy:
+    image: phetsunal/phets-proxy
+    depends_on:
+      - phets-api
+    ports:
+      - "80:80"
 
 volumes:
   phets-animal-volume:
@@ -190,7 +176,3 @@ volumes:
   phets-interaction-volume:
   phets-notification-db-volume:
   phets-event-db-volume:
-
-networks:
-  phets-interaction-ms-dev:
-    driver: bridge
