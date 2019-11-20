@@ -100,7 +100,7 @@ services:
       MONGO_HOST: 172.17.0.1
       MONGO_PORT: 3001
     healthcheck:
-      test: "curl -G localhost:8000/event --fail"
+      test: "curl -G phets-event-ms:4001/event --fail"
       interval: 20s
       retries: 10
   phets-event-db:
@@ -122,6 +122,7 @@ services:
       - "phets-interaction-db"
     environment:
       DB_CONNECTION_STRING: "host=phets-interaction-db;port=5432;database=interaction_db;username=phets_interaction;password=phets_interaction"
+      DEFAULT_ADDRESS: "http://0.0.0.0:4005/"
   phets-interaction-db:
     container_name: phets-interaction-db
     image: postgres:11
