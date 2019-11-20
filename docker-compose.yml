@@ -88,6 +88,8 @@ services:
       - phets-files-volume:/var/local/uploads
     environment:
       PORT: "4007"
+      USERS_MS_PORT: '4006'
+      USERS_MS_HOST: 'phets-users-ms'
       UPLOADS_PATH: "/var/local/uploads"
   phets-event-ms:
     container_name: phets-event-ms
