@@ -19,8 +19,11 @@ services:
       NOTIFICATION_URL: "phets-notification-ms"
       NOTIFICATION_PORT: "4004"
       NOTIFICATION_ENTRY: "notifications"
+      EMAIL_ENTRY: "emails"
       USER_URL: "phets-users-ms"
       USER_PORT: "4006"
+    ports: 
+      - "4000:4000"
   phets-users-ms:
     container_name: phets-users-ms
     image: phetsunal/phets-users-ms:latest
@@ -37,8 +40,8 @@ services:
       interval: 20s
       retries: 10
   phets-users-db:
-    image: mysql:5.7
     container_name: phets-users-db
+    image: phetsunal/phets-users-db
     healthcheck:
       test: "mysqlcheck -u$$MYSQL_USER -p$$MYSQL_PASSWORD $$MYSQL_DATABASE"
       interval: 20s
@@ -62,11 +65,15 @@ services:
     environment:
       DATABASE_USER: animalUser
       DATABASE_PASS: password
-      DATABASE_URI: 172.17.0.1:3003
+      DATABASE_HOST: 172.17.0.1
+      DATABASE_PORT: 3003
       DATABASE_NAME: animals
+      PORT: 4003
+    ports:
+      - "4003:4003"
   phets-animal-db:
-    image: mysql:5.7
     container_name: phets-animal-db
+    image: phetsunal/phets-animal-db
     healthcheck:
       test: "mysqlcheck -u$$MYSQL_USER -p$$MYSQL_PASSWORD $$MYSQL_DATABASE"
       interval: 20s
@@ -107,7 +114,7 @@ services:
       retries: 10
   phets-event-db:
     container_name: phets-event-db
-    image: mongo
+    image: phetsunal/phets-event-ms
     volumes:
       - phets-event-db-volume:/data/db
     healthcheck:
@@ -127,7 +134,7 @@ services:
       DEFAULT_ADDRESS: "http://0.0.0.0:4005/"
   phets-interaction-db:
     container_name: phets-interaction-db
-    image: postgres:11
+    image: phetsunal/phets-interaction-db
     ports:
       - "3005:5432"
     restart: always
@@ -146,7 +153,7 @@ services:
       - phets-notification-db
   phets-notification-db:
     container_name: phets-notification-db
-    image: postgres
+    image: phetsunal/phets-notification-db
     volumes:
       - phets-notification-db-volume:/var/lib/postgresql/data
     ports:
